@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>준형이에게 초콜릿 선물하기</title>
+  <style>
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      background: linear-gradient(135deg, #fff1f7, #eef2ff);
+    }
+    .card{
+      width:min(520px, 92vw);
+      padding:30px 24px;
+      background:#fff;
+      border-radius:22px;
+      box-shadow: 0 14px 40px rgba(0,0,0,.12);
+      text-align:center;
+    }
+    h1{ margin:0 0 12px; }
+    p{ margin:0 0 18px; color:#555; }
+
+    .arena{
+      position:relative;
+      width:100%;
+      height:220px;
+      border-radius:18px;
+      border:1px dashed #ddd;
+      overflow:hidden;
+      margin-top:14px;
+    }
+
+    .btn{
+      border:0;
+      padding:12px 20px;
+      border-radius:999px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    #yes{ background:#22c55e; color:#fff; }
+    #no{
+      background:#ef4444;
+      color:#fff;
+      position:absolute;
+    }
+    .yes-wrap{
+      position:absolute;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+    }
+
+    /* 감사 화면 */
+    .thanks{
+      display:none;
+      animation: fadeIn .6s ease forwards;
+    }
+    @keyframes fadeIn{
+      from{ opacity:0; transform:translateY(10px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+    .thanks h2{
+      font-size:28px;
+      margin-bottom:10px;
+    }
+    .thanks p{
+      font-size:18px;
+      color:#333;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="page1">
+    <h1>준형이에게 초콜릿 선물하기 🍫</h1>
+    <p>준형이에게 초콜릿 줄래?</p>
+
+    <div class="arena" id="arena">
+      <button class="btn" id="no">No</button>
+      <div class="yes-wrap">
+        <button class="btn" id="yes">Yes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card thanks" id="page2">
+    <h2>잘 먹겠습니다 😋</h2>
+    <p>초콜릿 고마워요 🍫❤️<br>완전 감동입니다!</p>
+  </div>
+
+  <script>
+    const arena = document.getElementById("arena");
+    const noBtn = document.getElementById("no");
+    const yesBtn = document.getElementById("yes");
+    const page1 = document.getElementById("page1");
+    const page2 = document.getElementById("page2");
+
+    function randInt(min, max){
+      return Math.floor(Math.random()*(max-min+1))+min;
+    }
+
+    function moveNo(){
+      const a = arena.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+      const x = randInt(0, a.width - b.width);
+      const y = randInt(0, a.height - b.height - 60);
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+    }
+
+    noBtn.addEventListener("mouseenter", moveNo);
+    noBtn.addEventListener("mousedown", moveNo);
+    noBtn.addEventListener("touchstart", (e)=>{
+      e.preventDefault();
+      moveNo();
+    }, {passive:false});
+
+    yesBtn.addEventListener("click", ()=>{
+      page1.style.display = "none";
+      page2.style.display = "block";
+    });
+
+    moveNo();
+  </script>
+</body>
+</html>
