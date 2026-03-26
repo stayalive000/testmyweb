@@ -399,6 +399,15 @@
     0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
     100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
   }
+
+
+  .sound-hint {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #ffffffb3;
+    text-shadow: 0 0 8px #000;
+  }
+
 </style>
 </head>
 <body>
@@ -422,7 +431,6 @@
   <button class="sound-btn" onclick="onBtnClick()">🆘 멘탈 충전하기 🆘</button>
 
   <div class="counter" id="counter">멘탈 나간 횟수: 0번</div>
-</div>
 
 <div class="modal-overlay" id="modal">
   <div class="modal">
@@ -445,6 +453,53 @@
 </div>
 
 <script>
+let audioCtx;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+
+function playTone({ freq = 440, duration = 0.12, type = "sine", volume = 0.04, sweepTo = null }) {
+  const ctx = getAudioCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, ctx.currentTime);
+  if (sweepTo !== null) {
+    osc.frequency.exponentialRampToValueAtTime(Math.max(1, sweepTo), ctx.currentTime + duration);
+  }
+  gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(volume, ctx.currentTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + duration + 0.02);
+}
+
+function playFailSound() {
+  playTone({ freq: 220, duration: 0.08, type: "square", volume: 0.05, sweepTo: 180 });
+  setTimeout(() => playTone({ freq: 170, duration: 0.12, type: "sawtooth", volume: 0.045, sweepTo: 120 }), 90);
+}
+
+function playClickSound() {
+  playTone({ freq: 660, duration: 0.05, type: "triangle", volume: 0.03, sweepTo: 520 });
+}
+
+function playRecoverySound() {
+  const notes = [523.25, 659.25, 783.99, 1046.5];
+  notes.forEach((note, i) => {
+    setTimeout(() => playTone({ freq: note, duration: 0.16, type: "sine", volume: 0.045 }), i * 140);
+  });
+}
+
+function playResetSound() {
+  [700, 560, 420].forEach((note, i) => {
+    setTimeout(() => playTone({ freq: note, duration: 0.08, type: "triangle", volume: 0.03, sweepTo: note - 40 }), i * 70);
+  });
+}
+
 const text = "멘탈이완전나가버렸습니다";
 const el = document.getElementById("mainText");
 [...text].forEach(ch => {
@@ -481,6 +536,7 @@ let target = Math.floor(Math.random() * 10) + 1;
 const counter = document.getElementById("counter");
 
 function onBtnClick() {
+  playClickSound();
   count++;
   counter.textContent = `멘탈 나간 횟수: ${count}번`;
 
@@ -489,6 +545,7 @@ function onBtnClick() {
     return;
   }
 
+  playFailSound();
   document.getElementById("modal").classList.add("active");
   for(let i = 0; i < 30; i++) setTimeout(makeSpark, i * 30);
 }
@@ -502,6 +559,7 @@ document.getElementById("modal").addEventListener("click", function(e) {
 });
 
 function showRecovery() {
+  playRecoverySound();
   document.getElementById("modal").classList.remove("active");
 
   // 하늘 배경 켜기
@@ -563,6 +621,7 @@ function launchConfetti() {
 }
 
 function resetAll() {
+  playResetSound();
   count = 0;
   target = Math.floor(Math.random() * 10) + 1;
   counter.textContent = "멘탈 나간 횟수: 0번";
