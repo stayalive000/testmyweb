@@ -477,13 +477,14 @@ function makeSpark() {
 setInterval(makeSpark, 80);
 
 let count = 0;
+let target = Math.floor(Math.random() * 10) + 1;
 const counter = document.getElementById("counter");
 
 function onBtnClick() {
   count++;
   counter.textContent = `멘탈 나간 횟수: ${count}번`;
 
-  if (count >= 5) {
+  if (count >= target) {
     showRecovery();
     return;
   }
@@ -563,6 +564,7 @@ function launchConfetti() {
 
 function resetAll() {
   count = 0;
+  target = Math.floor(Math.random() * 10) + 1;
   counter.textContent = "멘탈 나간 횟수: 0번";
   document.getElementById("recoveryOverlay").classList.remove("active");
   const sky = document.getElementById("skyBg");
@@ -582,4 +584,3 @@ setInterval(() => {
 </script>
 </body>
 </html>
-
